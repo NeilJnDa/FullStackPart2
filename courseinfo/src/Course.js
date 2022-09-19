@@ -1,4 +1,24 @@
-import Course from './Course'
+const Header = ({ name }) => <h2>{name}</h2>
+
+const Total = ({ sum }) => <p><b>Total of {sum} exercises</b></p>
+
+const Part = ({ part }) => 
+  <p>
+    {part.name} {part.exercises}
+  </p>
+
+const Content = ({ parts }) => {
+  const value = parts.reduce((prev, next) =>prev + next)
+
+  return(
+    <>
+      {parts.map(x => <Part key = {x.id} part = {x}/> )} 
+      <Total sum = {parts.reduce((acc, next) => acc + next.exercises, 0)}/>
+    </>
+  )
+}
+
+
 const App = () => {
   const courses = [
     {
@@ -51,4 +71,12 @@ const App = () => {
     </div>
   )
 }
-export default App
+const Course = ({course}) => {
+  return(
+    <div>
+      <Header name={course.name}></Header>
+      <Content parts={course.parts}/>
+    </div>
+  )
+}
+export default Course
