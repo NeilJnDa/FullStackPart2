@@ -32,27 +32,44 @@ function App() {
       <DisplayResult
         countries = {countries}
         input = {input}
+        setInput = {setInput}
       />
     </div>
   );
 }
-const DisplayResult = ({countries, input}) =>{
+const DisplayResult = ({countries, input, setInput}) =>{
+  function handleShow(newInput){
+    setInput(newInput)
+  }
   const result = countries
   .filter(x => x.name.common.toLowerCase().includes(input.toLowerCase()))
+
+  //No input
   if(input.length === 0){
     return(null)
   }
+  //No match
   else if(result.length  === 0){
     return (<p>No match</p>)
   }
+  //Too many matchs
   else if(result.length > 10) {
     return(<p>Too many matches, specify another filter</p>)
   }
+  //Choose one match
   else if(result.length > 1){
     return(
-      result.map(x => <p>{x.name.common}</p>)
+      result.map(x => 
+      <div>
+      <p>
+      {x.name.common}
+      <button onClick={() => handleShow(x.name.common)}>Show</button>
+      </p> 
+      </div>
+      )
     )
   }
+  //Only one match
   else{
     const res = result[0]
     return(
