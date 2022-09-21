@@ -3,12 +3,46 @@ import { useState, useEffect} from 'react';
 import axios from 'axios'
 
 function App() {
+  //API
+  const api_key = process.env.REACT_APP_API_KEY
+  //Hook State
   const [input, setInput] = useState('')
   const [countries, setCountries] = useState([])
-  const handleInputChange = (event) => {
+  const [weather, setWeather] = useState()
+  const [result, setResult] = useState([])
+  //Weather 
+  function WeatherAPI(result){
+    console.log("WeatherAPI")
+    if(result.length === 1){
+      axios
+      .get("https://api.openweathermap.org/data/2.5/weather", {
+        params:{
+          lat : result[0].capitalInfo.latlng[0],
+          lon : result[0].capitalInfo.latlng[1],
+          appid : process.env.REACT_APP_API_KEY
+        }
+      })
+      .then(response => {
+        //console.log(response.data)
+        setWeather(response.data)
+      })
+    }
+  }
+  //Input Change Event handler
+  const handleInputChangeEvent = (event) => {
     event.preventDefault()
     setInput(event.target.value)
+    setResult(
+      countries.filter(x => x.name.common.toLowerCase().includes(input.toLowerCase()))
+    )
   }
+  const handleInputChange = (newInput) =>{
+    setInput(newInput)
+    setResult(
+      countries.filter(x => x.name.common.toLowerCase().includes(newInput.toLowerCase()))
+    )
+  }
+  //Get country data
   const lookupHook = () =>{
     axios
     .get("https://restcountries.com/v3.1/all")
@@ -16,8 +50,12 @@ function App() {
       setCountries(response.data)
    })
   }
+
+
+  //Hook Effect
   useEffect(lookupHook,[])
-  //console.log(countries)
+  useEffect(()=> WeatherAPI(result), [result.length])
+
 
   return (
     <div>
@@ -26,24 +64,20 @@ function App() {
         <input
         placeholder="Country name"
         value = {input}
-        onChange = {handleInputChange}
+        onChange = {handleInputChangeEvent}
         />
       </form>
       <DisplayResult
-        countries = {countries}
+        result = {result}
         input = {input}
-        setInput = {setInput}
+        weather = {weather}
+        handleInputChange = {handleInputChange}
       />
     </div>
   );
 }
-const DisplayResult = ({countries, input, setInput}) =>{
-  function handleShow(newInput){
-    setInput(newInput)
-  }
-  const result = countries
-  .filter(x => x.name.common.toLowerCase().includes(input.toLowerCase()))
-
+const DisplayResult = ({result, input, weather, handleInputChange}) =>{
+  console.log("Display")
   //No input
   if(input.length === 0){
     return(null)
@@ -60,10 +94,10 @@ const DisplayResult = ({countries, input, setInput}) =>{
   else if(result.length > 1){
     return(
       result.map(x => 
-      <div>
+      <div key = {x.name.common}>
       <p>
       {x.name.common}
-      <button onClick={() => handleShow(x.name.common)}>Show</button>
+      <button onClick={() => handleInputChange(x.name.common)}>Show</button>
       </p> 
       </div>
       )
@@ -82,6 +116,9 @@ const DisplayResult = ({countries, input, setInput}) =>{
           {Object.values(res.languages).map(x => <li key = {x}>{x}</li>)}
         </ul>
         <img src = {res.flags.png} alt="Flag"></img>
+        <h2>Weather in {res.capital}</h2>
+        <p>Temperature: {weather ? (weather.main.temp -273.15).toLocaleString(undefined, {maximumFractionDigits:2}) : "NoData"} °C </p>
+        <p>Wind: {weather ? weather.wind.speed : "NoData"} m/s </p> 
       </div>
     )
   }
