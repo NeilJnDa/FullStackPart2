@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import personService from '../services/Person'
 
 const PersonForm = ({persons, setPersons}) => {
   const [newName, setNewName] = useState('')
@@ -19,19 +20,24 @@ const PersonForm = ({persons, setPersons}) => {
         alert(`${newName} is already added to phonebook`)
       }
       else{
-        setPersons(persons.concat({name: newName, number: newNum}))
-        setNewName('')
-        setNewNum('')
+        personService
+          .addNew({name: newName, number: newNum})       
+          .then(() => {
+            setPersons(persons.concat({name: newName, number: newNum}))
+            setNewName('')
+            setNewNum('')
+            }
+          )
       }
     }
   return(
       <form onSubmit = {addName}>
-      <div>name: 
+      <div>Name: 
         <input 
         value = {newName}
         onChange = {handleNameChange}
         />
-      <div>number:
+      <div>Number:
         <input
         value = {newNum}
         onChange = {handleNumChange}
@@ -39,7 +45,7 @@ const PersonForm = ({persons, setPersons}) => {
       </div>
       </div>
       <div>
-        <button type="submit">add</button>
+        <button type="submit">Add</button>
       </div>
     </form>
   )
