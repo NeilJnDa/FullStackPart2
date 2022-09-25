@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import personService from '../services/Person'
 
-const PersonForm = ({persons, setPersons}) => {
+const PersonForm = ({persons, setPersons, setErrorMessage}) => {
   const [newName, setNewName] = useState('')
   const [newNum, setNewNum] = useState('')
   const handleNameChange = (event) => {
@@ -17,13 +17,50 @@ const PersonForm = ({persons, setPersons}) => {
       event.preventDefault()
       if(newName === '' || newNum === '') alert("New name or number can not be empty!")
       else if(persons.map(x => x.name).includes(newName) === true){
-        alert(`${newName} is already added to phonebook`)
+        if(window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`))
+        {
+          const id = persons.find(x => x.name === newName).id
+          console.log('update id', id)
+
+          const newObject = {name: newName, number: newNum}
+          personService
+            .update(id, newObject)
+            .then(() =>{
+              personService.getAll().then(persons => setPersons(persons))
+              setErrorMessage(
+                `Changed '${newName}'`
+              )
+              setTimeout(() => {
+                setErrorMessage(null)
+              }, 5000)
+              setNewName('')
+              setNewNum('')
+            })
+            .catch(()=>{
+              setErrorMessage(
+                `Information of ${newName} has already been removed from the server`
+              )
+              setTimeout(() => {
+                setErrorMessage(null)
+              }, 5000)
+              setNewName('')
+              setNewNum('')
+              personService.getAll().then(persons => setPersons(persons))
+            })
+        }
       }
       else{
         personService
           .addNew({name: newName, number: newNum})       
-          .then(() => {
-            setPersons(persons.concat({name: newName, number: newNum}))
+          .then(returnedNote => {
+            setPersons(persons.concat(returnedNote))
+
+            setErrorMessage(
+              `Added '${newName}'`
+            )
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
             setNewName('')
             setNewNum('')
             }
