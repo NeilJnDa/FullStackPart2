@@ -3,19 +3,10 @@ import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import personService from './services/Person'
+import Notification from './components/Notification'
 import './index.css'
 
-const Notification = ({ message }) => {
-  if (message === null) {
-    return null
-  }
 
-  return (
-    <div className='error'>
-      {message}
-    </div>
-  )
-}
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newFilter, setNewFilter] = useState('')
@@ -33,7 +24,7 @@ const App = () => {
       <h2>Phonebook</h2>
       <Notification message={errorMessage} />
       <Filter newFilter = {newFilter} setNewFilter = {setNewFilter} />
-      <h2>Add a bew</h2>
+      <h2>Add a new</h2>
       <PersonForm 
       persons = {persons} 
       setPersons = {setPersons} 

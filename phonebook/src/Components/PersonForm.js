@@ -36,15 +36,13 @@ const PersonForm = ({persons, setPersons, setErrorMessage}) => {
               setNewName('')
               setNewNum('')
             })
-            .catch(()=>{
+            .catch((error)=>{
               setErrorMessage(
-                `Information of ${newName} has already been removed from the server`
+                error.response.status === 404 ? `Information of ${newName} has already been removed from the server`: error.response.data.error
               )
               setTimeout(() => {
                 setErrorMessage(null)
               }, 5000)
-              setNewName('')
-              setNewNum('')
               personService.getAll().then(persons => setPersons(persons))
             })
         }
@@ -65,6 +63,15 @@ const PersonForm = ({persons, setPersons, setErrorMessage}) => {
             setNewNum('')
             }
           )
+          .catch(error => {
+            setErrorMessage(
+              error.response.data.error
+            )
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
+            console.log(error.response.data.error)
+          })
       }
     }
   return(

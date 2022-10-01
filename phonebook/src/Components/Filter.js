@@ -1,4 +1,3 @@
-import { useState } from 'react'
 
 const Filter = ({newFilter, setNewFilter}) => {
     const handleFilterChange = (event) => {
